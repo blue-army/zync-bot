@@ -3,6 +3,9 @@ var builder = require("botbuilder");
 var botbuilder_azure = require("botbuilder-azure");
 var path = require('path');
 var useEmulator = (process.env.NODE_ENV == 'development');
+if (useEmulator) {
+  console.log("Using Emulator!");
+}
 
 var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure.BotServiceConnector({
     appId: process.env['MicrosoftAppId'],
@@ -15,7 +18,7 @@ var bot = new builder.UniversalBot(connector);
 bot.localePath(path.join(__dirname, './locale'));
 
 bot.dialog('/', function (session) {
-    
+
     // session.send(JSON.stringify(session))
     session.send('You said ' + session.message.text);
 });
@@ -26,7 +29,7 @@ if (useEmulator) {
     server.listen(3978, function() {
         console.log('test bot endpont at http://localhost:3978/api/messages');
     });
-    server.post('/api/messages', connector.listen());    
+    server.post('/api/messages', connector.listen());
 } else {
     module.exports = { default: connector.listen() }
 }
