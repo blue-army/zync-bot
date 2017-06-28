@@ -3,7 +3,7 @@ var builder = require("botbuilder");
 var botbuilder_azure = require("botbuilder-azure");
 var path = require('path');
 var board = require('./board');
-var tictactoe = require('./tictactoe')
+var tictactoe = require('./tictactoe');
 
 var useEmulator = (process.env.NODE_ENV == 'development');
 if (useEmulator) {
@@ -41,7 +41,7 @@ bot.dialog('setup', [
     session.conversationData.board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
     session.conversationData.turn = 0;
     var msg = new builder.Message(session);
-    msg.addAttachment(board.board_message(session.conversationData.board));
+    msg.addAttachment(board.BoardMessage(session.conversationData.board, session.conversationData.turn).schema());
     session.send(msg);
     session.send('You go first!');
     session.beginDialog('playGame');
@@ -83,9 +83,9 @@ bot.dialog('playGame',
 
       // Play user's move and send the resulting board
       game.userMove(x, y);
-      var msg = new builder.Message(session);
-      msg.addAttachment(board.board_message(session.conversationData.board));
-      session.send(msg);
+      var user_move_msg = new builder.Message(session);
+      user_move_msg.addAttachment(board.BoardMessage(game.board, session.conversationData.turn).schema());
+      session.send(user_move_msg);
 
       // check if the game is over
       if (game.game_over) {
@@ -99,9 +99,9 @@ bot.dialog('playGame',
       session.send(responses[session.conversationData.turn % responses.length]);
       session.sendTyping();
       game.computerMove();
-      var msg = new builder.Message(session);
-      msg.addAttachment(board.board_message(game.board));
-      session.send(msg);
+      var computer_move_msg = new builder.Message(session);
+      computer_move_msg.addAttachment(board.BoardMessage(game.board, session.conversationData.turn).scehma());
+      session.send(computer_move_msg);
 
       // check if game over
       if (game.game_over) {
@@ -152,7 +152,7 @@ if (useEmulator) {
   var restify = require('restify');
   var server = restify.createServer();
   server.listen(3978, function() {
-    console.log('test bot endpont at http://localhost:3978/api/messages');
+    console.log('test bot endpoint at http://localhost:3978/api/messages');
   });
   server.post('/api/messages', connector.listen());
 } else {
