@@ -101,5 +101,4 @@ Game.prototype.update_status = function(x, y, token) {
   else if (this.board_full()) {
     this.game_over = true;
   }
-  console.log("Game status: game over = " + this.game_over);
 };

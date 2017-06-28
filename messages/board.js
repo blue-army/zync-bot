@@ -34,10 +34,11 @@ function board_col(x, board_state) {
   return col;
 }
 
+// previous images: http://adaptivecards.io/api/cat/2
 var images = [
-  "http://adaptivecards.io/api/cat/0",
-  "http://adaptivecards.io/api/cat/1",
-  "http://adaptivecards.io/api/cat/2"
+  process.env.ttt_blank_square,
+  process.env.ttt_x_square,
+  process.env.ttt_o_square,
 ];
 // returns json schema for a single board square
 function board_square(x, y, state) {
