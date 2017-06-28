@@ -74,7 +74,7 @@ Game.prototype.down_diag_equal = function() {
 
 // Check if the tokens on the upwards diagonal are equal
 Game.prototype.up_diag_equal = function() {
-  return this.board[0][0] === this.board[1][1] && this.board[1][1] === this.board[2][2];
+  return this.board[2][0] === this.board[1][1] && this.board[1][1] === this.board[0][2];
 };
 
 // Check if the board is full
