@@ -11,28 +11,30 @@ if (useEmulator) {
 }
 
 var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure.BotServiceConnector({
-    appId: process.env['MicrosoftAppId'],
-    appPassword: process.env['MicrosoftAppPassword'],
-    stateEndpoint: process.env['BotStateEndpoint'],
-    openIdMetadata: process.env['BotOpenIdMetadata']
+  appId: process.env['MicrosoftAppId'],
+  appPassword: process.env['MicrosoftAppPassword'],
+  stateEndpoint: process.env['BotStateEndpoint'],
+  openIdMetadata: process.env['BotOpenIdMetadata']
 });
 
 var bot = new builder.UniversalBot(connector);
 bot.localePath(path.join(__dirname, './locale'));
 
+// Default dialogue. Mostly just greets user and calls the setup dialogue
 bot.dialog('/', [
-    function (session) {
-        builder.Prompts.confirm(session, 'Hi! Do you want to play tic tac toe?');
-    },
-    function (session, results) {
-        if (results.response) {
-          session.beginDialog('setup');
-        } else {
-          session.endDialog('Okay, goodbye!')
-        }
+  function (session) {
+    builder.Prompts.confirm(session, 'Hi! Do you want to play tic tac toe?');
+  },
+  function (session, results) {
+    if (results.response) {
+      session.beginDialog('setup');
+    } else {
+      session.endDialog('Okay, goodbye!')
     }
+  }
 ]);
 
+// sets up the game and restarts it when necessary
 bot.dialog('setup', [
   function(session) {
     session.conversationData.board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
@@ -94,8 +96,6 @@ bot.dialog('playGame',
       msg.addAttachment(board.board_message(game.board));
       session.send(msg);
 
-      session.send("computer moves");
-
       if (game.game_over) {
         report_results(session, game);
         session.endDialog();
@@ -108,12 +108,12 @@ bot.dialog('playGame',
 );
 
 if (useEmulator) {
-    var restify = require('restify');
-    var server = restify.createServer();
-    server.listen(3978, function() {
-        console.log('test bot endpont at http://localhost:3978/api/messages');
-    });
-    server.post('/api/messages', connector.listen());
+  var restify = require('restify');
+  var server = restify.createServer();
+  server.listen(3978, function() {
+    console.log('test bot endpont at http://localhost:3978/api/messages');
+  });
+  server.post('/api/messages', connector.listen());
 } else {
-    module.exports = { default: connector.listen() };
+  module.exports = { default: connector.listen() };
 }

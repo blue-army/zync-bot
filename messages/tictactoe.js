@@ -1,4 +1,3 @@
-// var board = require('./board');
 
 // Game prototype stores game state and info
 function Game(board_state) {
@@ -9,10 +8,6 @@ function Game(board_state) {
   this.user_token = 2;
 }
 exports.game = Game;
-
-// Game.prototype.display_board = function() {
-//   return board.board_message(this.board);
-// }
 
 // Check if the user has won
 Game.prototype.user_wins = function() {
