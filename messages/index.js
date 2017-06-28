@@ -23,13 +23,14 @@ bot.localePath(path.join(__dirname, './locale'));
 // Default dialogue. Mostly just greets user and calls the setup dialogue
 bot.dialog('/', [
   function (session) {
-    builder.Prompts.confirm(session, 'Hi! Do you want to play tic tac toe?');
+    builder.Prompts.confirm(session, "Hi! Do you want to play tic tac toe?");
   },
   function (session, results) {
     if (results.response) {
+      session.send('Great!');
       session.beginDialog('setup');
     } else {
-      session.endDialog('Okay, goodbye!')
+      session.beginDialog('quit');
     }
   }
 ]);
@@ -39,7 +40,6 @@ bot.dialog('setup', [
   function(session) {
     session.conversationData.board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
     session.conversationData.turn = 0;
-    session.send('Great!');
     var msg = new builder.Message(session);
     msg.addAttachment(board.board_message(session.conversationData.board));
     session.send(msg);
@@ -49,12 +49,17 @@ bot.dialog('setup', [
     builder.Prompts.confirm(session, "Want to play again?");
   }, function(session, results) {
     if (results.response) {
-      session.beginDialog('setup');
+      session.send('Me too!');
+      session.replaceDialog('setup');   // restart if the user wants to play again
     } else {
-      session.endDialog('Okay, goodbye!');
+      session.beginDialog('quit');
     }
   }
-]);
+]).reloadAction("restartGame", "Starting over ...", {
+    // restarts the game
+    matches: /^restart$/i,
+    confirmPrompt: "Are you sure you want to restart?"
+});
 
 // report the results of the game
 function report_results(session, game) {
@@ -67,9 +72,9 @@ function report_results(session, game) {
   }
 }
 
-// gameplay dialogue - loops once per turn
+// gameplay dialog - loops once per turn
 bot.dialog('playGame',
-  function(session, args, next) {
+  function(session) {
     if (session.message && session.message.value) {
       var x = session.message.value.x;
       var y = session.message.value.y;
@@ -82,7 +87,8 @@ bot.dialog('playGame',
       msg.addAttachment(board.board_message(session.conversationData.board));
       session.send(msg);
 
-      if (game.game_over) {   // check if the game is over
+      // check if the game is over
+      if (game.game_over) {
         report_results(session, game);
         session.endDialog();
         return;
@@ -91,11 +97,13 @@ bot.dialog('playGame',
       // Have the computer make its move
       var responses = ["hmm ...", "my turn!", "nice!", "I'm thinking ..."];
       session.send(responses[session.conversationData.turn % responses.length]);
+      session.sendTyping();
       game.computerMove();
       var msg = new builder.Message(session);
       msg.addAttachment(board.board_message(game.board));
       session.send(msg);
 
+      // check if game over
       if (game.game_over) {
         report_results(session, game);
         session.endDialog();
@@ -103,9 +111,42 @@ bot.dialog('playGame',
       }
       session.send("your turn!");
     }
-    //session.send("Sorry, I didn't understand that!");
   }
 );
+
+// Help dialog
+// Message is not sent in a separate dialog because doing so ends the 'playGame' dialog
+bot.dialog('help', function (session, args, next) {}).triggerAction({
+    matches: /^help$/i,
+    // (override the default behavior of replacing the stack)
+    onSelectAction: function(session, args, next) {
+        session.send("I'm a bot that plays tic tac toe! <br/>Please type ‘quit’ or ‘restart’ if you don’t want to keep playing.");
+    }
+});
+
+// alternative help dialogue
+// issue - quits game
+// bot.dialog('help', function (session, args, next) {
+//     //session.send("This is a bot that plays tic tac toe! <br/>Please type ‘quit’ or ‘restart’ if you don’t want to keep playing.");
+// }).triggerAction({
+//     matches: /^help$/i,
+//     onSelectAction: (session, args, next) => {
+//         // Add the help dialog to the dialog stack
+//         // (override the default behavior of replacing the stack)
+//         session.send("I'm a bot that plays tic tac toe! <br/>Please type ‘quit’ or ‘restart’ if you don’t want to keep playing.");
+//         //session.beginDialog(args.action, args);
+//     }
+// });
+
+// This dialog ends the conversation.
+// The user can trigger it at any time by typing 'quit'
+// Issue - confirm prompt is not sent
+bot.dialog("quit", function(session){
+        session.endConversation('Okay, goodbye!');
+}).triggerAction({
+    matches: /^quit$/i,
+    confirmPrompt: "Are you sure you want to quit?"
+});
 
 if (useEmulator) {
   var restify = require('restify');

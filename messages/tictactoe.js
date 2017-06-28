@@ -49,7 +49,7 @@ Game.prototype.computerMove = function() {
 
 // update board and then check if someone has won
 Game.prototype.move = function(x, y, token) {
-  if (this.board[y][x] != 0) {
+  if (this.board[y][x] !== 0) {
     console.error("Invalid Game Move!");
     return;
   }

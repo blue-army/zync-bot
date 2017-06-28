@@ -35,11 +35,17 @@ function board_col(x, board_state) {
 }
 
 // previous images: http://adaptivecards.io/api/cat/2
-var images = [
+var prod_images = [
   process.env.ttt_blank_square,
   process.env.ttt_x_square,
   process.env.ttt_o_square,
 ];
+var dev_images = [
+  "http://files.softicons.com/download/culture-icons/avatar-minis-icons-by-joumana-medlej/png/96x96/Penguin.png",
+  "http://files.softicons.com/download/culture-icons/avatar-minis-icons-by-joumana-medlej/png/96x96/Fire%20Nation%20Aang.png",
+  "http://files.softicons.com/download/culture-icons/avatar-minis-icons-by-joumana-medlej/png/96x96/Toph.png"
+];
+var images = (process.env.NODE_ENV == 'development') ? dev_images : prod_images;
 // returns json schema for a single board square
 function board_square(x, y, state) {
   var square = {
