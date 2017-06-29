@@ -33,7 +33,7 @@ Game.prototype.userMove = function(x, y) {
   this.move(x, y, this.user_token);
 };
 
-// Algorithm for computer to choose square
+// Very basic algorithm for computer to choose a square
 Game.prototype.basic_move = function() {
   for (var row = 0; row < 3; row ++) {
     for (var col = 0; col < 3; col ++) {
@@ -46,8 +46,7 @@ Game.prototype.basic_move = function() {
 };
 
 // Have the computer make a move
-Game.prototype.computerMove = function() {
-  [row, col] = this.basic_move();
+Game.prototype.computerMove = function(row, col) {
   this.move(col, row, this.computer_token);
 };
 

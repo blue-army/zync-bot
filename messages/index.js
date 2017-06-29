@@ -4,6 +4,7 @@ var botbuilder_azure = require("botbuilder-azure");
 var path = require('path');
 var board = require('./board');
 var tictactoe = require('./tictactoe');
+var agent = require('./agent');
 
 var useEmulator = (process.env.NODE_ENV == 'development');
 if (useEmulator) {
@@ -18,6 +19,7 @@ var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure
 });
 
 var bot = new builder.UniversalBot(connector);
+var Agent = new agent.Agent();
 bot.localePath(path.join(__dirname, './locale'));
 
 // Default dialogue. Mostly just greets user and calls the setup dialogue
@@ -102,7 +104,8 @@ function play_turn(session, x, y) {
    var responses = ["hmm ...", "my turn!", "nice!", "I'm thinking ..."];
    session.send(responses[session.conversationData.turn % responses.length]);
    session.sendTyping();
-   game.computerMove();
+   var move = Agent.choose(game.board);
+   game.computerMove(move.row, move.col);
    send_board(session);
 
    // check if game over
