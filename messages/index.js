@@ -5,6 +5,10 @@ var path = require('path');
 var board = require('./board');
 var tictactoe = require('./tictactoe');
 var agent = require('./agent');
+var TextBoard = require('./text_board').TextBoard;
+
+// Set to true to send the board as an interactive ActiveCard instead of as text
+var USE_CARD_BOARD = false;
 
 var useEmulator = (process.env.NODE_ENV == 'development');
 if (useEmulator) {
@@ -39,9 +43,13 @@ bot.dialog('/', [
 
 // Send the current board as an AdaptiveCard
 function send_board(session) {
-   var msg = new builder.Message(session);
-   var current_board = new board.BoardMessage(session.conversationData.board, session.conversationData.turn);
-   msg.addAttachment(current_board.schema());
+   if (USE_CARD_BOARD) {
+      var msg = new builder.Message(session);
+      var current_board = new board.BoardMessage(session.conversationData.board, session.conversationData.turn);
+      msg.addAttachment(current_board.schema());
+   } else {
+      var msg = TextBoard(session.conversationData.board);
+   }
    session.send(msg);
 }
 
