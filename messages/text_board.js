@@ -14,7 +14,7 @@ var style2 = {
 var style = style2;
 var colNames = ['A', 'B', 'C'];
 var rowNames = ['1', '2', '3'];
-var chars = ['_', 'X', 'O'];
+var chars = ['~', 'X', 'O'];
 function TextBoard(board_state) {
   var board = vsprintf(style.header, colNames);
   for (var row = 0; row < 3; row ++) {
