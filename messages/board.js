@@ -1,3 +1,5 @@
+// Creates an AdaptiveCard that displays an interactive tic-tac-toe board
+
 // Images to use in board squares
 // previous images: http://adaptivecards.io/api/cat/2
 var prod_images = [
@@ -19,6 +21,7 @@ function BoardMessage(board_state, turn) {
 }
 exports.BoardMessage = BoardMessage;
 
+// specify column and row names
 BoardMessage.prototype.colNames = ['A', 'B', 'C'];
 BoardMessage.prototype.rowNames = ['1', '2', '3'];
 

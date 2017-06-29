@@ -148,12 +148,18 @@ function(session) {
          return;
       }
       // convert user input to board coordinates
-      // Full expression: /^(?:([123])([ABC])|([ABC])([123]))$/i
-      var re = /^([ABC])([123])$/i;
+      // simplified re = /^([ABC])([123])$/i;
+      var re = /^(?:([ABC])([123])|([123])([ABC]))$/i
       var re_result = coords.match(re);
       if (re_result) {
-         var col = re_result[1].toUpperCase();
-         var row = re_result[2];
+         // process row/col arguments in either order
+         if (re_result[1] && re_result[2]) {
+            var col = re_result[1].toUpperCase();
+            var row = re_result[2];
+         } else {
+            var row = re_result[3];
+            var col = re_result[4].toUpperCase();
+         }
          var messages = ["%s%s ... got it!", "Playing %s%s ...", "%s%s ... is this a trap?"];
          session.send(messages[session.conversationData.turn % messages.length], col, row);
          var x = ['A', 'B', 'C'].indexOf(col);

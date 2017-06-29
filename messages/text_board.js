@@ -1,6 +1,7 @@
 // var sp = require('sprintf-js').vsprintf;
 var vsprintf = require('sprintf-js').vsprintf;
 
+// style 1 not compatible with Microsoft Teams - use style 2
 var style1 = {
    "header": "~ | %s | %s | %s | <br/>",
    "row"   : "%s | %s | %s | %s | <br/>"

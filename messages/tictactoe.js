@@ -24,6 +24,7 @@ Game.prototype.tie = function() {
   return this.game_over && this.winner === 0;
 };
 
+// Check if a given square is unfilled
 Game.prototype.is_available = function(x, y) {
   return this.board[y][x] === 0;
 };
