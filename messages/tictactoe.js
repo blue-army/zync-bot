@@ -24,6 +24,10 @@ Game.prototype.tie = function() {
   return this.game_over && this.winner === 0;
 };
 
+Game.prototype.is_available = function(x, y) {
+  return this.board[y][x] === 0;
+};
+
 // Have user make a move at the specified location
 Game.prototype.userMove = function(x, y) {
   this.move(x, y, this.user_token);

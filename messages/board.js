@@ -19,8 +19,8 @@ function BoardMessage(board_state, turn) {
 }
 exports.BoardMessage = BoardMessage;
 
-BoardMessage.prototype.rowNames = ['A', 'B', 'C'];
-BoardMessage.prototype.colNames = [1, 2, 3];
+BoardMessage.prototype.colNames = ['A', 'B', 'C'];
+BoardMessage.prototype.rowNames = ['1', '2', '3'];
 
 // Converts the board state into an adaptive card schema
 BoardMessage.prototype.schema = function() {
@@ -36,7 +36,8 @@ BoardMessage.prototype.schema = function() {
       "body": [
         {
           "type": "ColumnSet",
-          "columns": board_cols
+          "columns": board_cols,
+          "separation": "strong"
         }
       ]
     }
@@ -47,11 +48,13 @@ BoardMessage.prototype.schema = function() {
 // returns json schema for a column of board squares
 BoardMessage.prototype.board_col = function(x) {
   squares = [this.label(this.colNames[x])];
+  //squares = [];
   for (var y = 0; y < 3; y++) {
     squares.push(this.board_square(x, y));
   }
   var col =  {
       "type": "Column",
+      "separation": "strong",
       "items": squares
   };
   return col;
@@ -63,7 +66,8 @@ BoardMessage.prototype.board_square = function(x, y) {
   var square = {
     "type": "Image",
     "url": this.images[state],
-    "horizontalAlignment": "center"
+    "horizontalAlignment": "center",
+    "separation": "default"
   };
   // specify action when a free square is clicked
   if (state === 0) {
@@ -80,11 +84,28 @@ BoardMessage.prototype.board_square = function(x, y) {
   return square;
 };
 
+// Creates a TextBlock with the given text
 BoardMessage.prototype.label = function(text) {
   var label = {
     "type": "TextBlock",
     "text": text,
-    "horizontalAlignment": "center"
+    "size": "extraLarge",
+    "horizontalAlignment": "center",
+    "separation": "none"
   };
   return label;
+};
+
+// Create a column of row labels
+// Not currently used due to alignment issues
+BoardMessage.prototype.label_col = function() {
+  squares = [];
+  this.rowNames.forEach(function(rname) {
+    squares.push(this.label(rname));
+  }, this);
+  var col =  {
+      "type": "Column",
+      "items": squares
+  };
+  return col;
 };
