@@ -56,9 +56,11 @@ bot.dialog('/', [
    }
 ]);
 
-// Send the current board as either an interactive AdaptiveCard or as text
 // list of apps that are compatible with cards
-var card_compatible = ['emulator', 'slack'];
+var card_compatible = ['emulator', 'slack', 'webchat'];
+// other source values: 'msteams' (teams), 'skype'
+// 'webchat' is used on azure for testing, and can be embedded in web pages
+// Send the current board as either an interactive AdaptiveCard or as text
 function send_board(session) {
    // sender - could also be in message.address.channelId
    var sender = session.message.source;
@@ -147,9 +149,9 @@ function play_turn(session, x, y) {
 // gameplay dialog - loops once per turn. Validates input and
 bot.dialog('playGame',
 function(session) {
-   console.log(JSON.stringify(session.message));
-   session.send("source1: " + session.message.source);
-   session.send("source2: " + session.message.address.channelId);
+   // console.log(JSON.stringify(session.message));
+   // session.send("source1: " + session.message.source);
+   // session.send("source2: " + session.message.address.channelId);
    if (session.message && session.message.value) {
       // filter out selections from older boards (including double-clicks)
       if (session.message.value.turn !== session.conversationData.turn) {
