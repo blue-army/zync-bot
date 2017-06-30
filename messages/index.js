@@ -15,6 +15,7 @@ if (useEmulator) {
    console.log("Using Emulator!");
 }
 
+// create connector
 var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure.BotServiceConnector({
    appId: process.env['MicrosoftAppId'],
    appPassword: process.env['MicrosoftAppPassword'],
@@ -22,10 +23,24 @@ var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure
    openIdMetadata: process.env['BotOpenIdMetadata']
 });
 
+// create bot and game-playing agent
 var bot = new builder.UniversalBot(connector);
 var Agent = new agent.Agent();
 bot.localePath(path.join(__dirname, './locale'));
 
+// listen for input or export connector (depending on environment)
+if (useEmulator) {
+   var restify = require('restify');
+   var server = restify.createServer();
+   server.listen(3978, function() {
+      console.log('test bot endpoint at http://localhost:3978/api/messages');
+   });
+   server.post('/api/messages', connector.listen());
+} else {
+   module.exports = { default: connector.listen() };
+}
+
+// ~ SPECIFY BOT BEHAVIOR ~
 // Default dialogue. Mostly just greets user and calls the setup dialogue
 bot.dialog('/', [
    function (session) {
@@ -41,9 +56,13 @@ bot.dialog('/', [
    }
 ]);
 
-// Send the current board as an AdaptiveCard
+// Send the current board as either an interactive AdaptiveCard or as text
+// list of apps that are compatible with cards
+var card_compatible = ['emulator', 'slack'];
 function send_board(session) {
-   if (USE_CARD_BOARD) {
+   // sender - could also be in message.address.channelId
+   var sender = session.message.source;
+   if (card_compatible.includes(sender)) {
       var msg = new builder.Message(session);
       var current_board = new board.BoardMessage(session.conversationData.board, session.conversationData.turn);
       msg.addAttachment(current_board.schema());
@@ -125,11 +144,14 @@ function play_turn(session, x, y) {
    session.send("your turn!");
 }
 
-// gameplay dialog - loops once per turn
+// gameplay dialog - loops once per turn. Validates input and
 bot.dialog('playGame',
 function(session) {
+   console.log(JSON.stringify(session.message));
+   session.send("source1: " + session.message.source);
+   session.send("source2: " + session.message.address.channelId);
    if (session.message && session.message.value) {
-      // filter out selections from older boards (inc. double-clicks)
+      // filter out selections from older boards (including double-clicks)
       if (session.message.value.turn !== session.conversationData.turn) {
          // send message if the board is too old for it to have been a double-click
          if (session.message.value.turn + 1 < session.conversationData.turn) {
@@ -162,6 +184,7 @@ function(session) {
          }
          var messages = ["%s%s ... got it!", "Playing %s%s ...", "%s%s ... is this a trap?"];
          session.send(messages[session.conversationData.turn % messages.length], col, row);
+         // map row and column names to coordinates
          var x = ['A', 'B', 'C'].indexOf(col);
          var y = ['1', '2', '3'].indexOf(row);
          if (useEmulator) session.send("(%d, %d)", x, y);
@@ -174,7 +197,7 @@ function(session) {
 );
 
 // Help dialog
-// Message is not sent in a separate dialog because doing so ends the 'playGame' dialog
+// Message is not sent in a separate dialog because doing so ends the 'playGame' dialog if a game is in progress
 bot.dialog('help', function (session, args, next) {}).triggerAction({
    matches: /^help$/i,
    // (override the default behavior of replacing the stack)
@@ -194,14 +217,3 @@ bot.dialog("quit", function(session){
    matches: /^quit$/i,
    confirmPrompt: "Are you sure you want to quit?"
 });
-
-if (useEmulator) {
-   var restify = require('restify');
-   var server = restify.createServer();
-   server.listen(3978, function() {
-      console.log('test bot endpoint at http://localhost:3978/api/messages');
-   });
-   server.post('/api/messages', connector.listen());
-} else {
-   module.exports = { default: connector.listen() };
-}
