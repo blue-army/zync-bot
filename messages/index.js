@@ -58,7 +58,7 @@ bot.dialog('/', [
 
 // list of apps that are compatible with cards
 var card_compatible = ['emulator', 'slack', 'webchat'];
-// other source values: 'msteams' (teams), 'skype'
+// other source values: 'msteams' (teams), 'skype' - both of these may be card-compatible soon
 // 'webchat' is used on azure for testing, and can be embedded in web pages
 // Send the current board as either an interactive AdaptiveCard or as text
 function send_board(session) {
